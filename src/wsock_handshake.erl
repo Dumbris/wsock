@@ -75,8 +75,8 @@ open(Resource, Host, Port) ->
     {"Host", Host ++ ":" ++ integer_to_list(Port)},
     {"Upgrade", "websocket"},
     {"Connection", "upgrade"},
-    {"Sec-Websocket-Key", wsock_key:generate()},
-    {"Sec-Websocket-Version", integer_to_list(?VERSION)}
+    {"Sec-WebSocket-Key", wsock_key:generate()},
+    {"Sec-WebSocket-Version", integer_to_list(?VERSION)}
   ],
 
   Message = wsock_http:build(request, RequestLine, Headers),
