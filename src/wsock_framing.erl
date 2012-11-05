@@ -17,7 +17,7 @@
 -module(wsock_framing).
 -include("wsock.hrl").
 
--export([to_binary/1, from_binary/1, from_binary/2, frame/1, frame/2]).
+-export([to_binary/1, from_binary/1, check_data_length/1, frame/1, frame/2]).
 
 -define(OP_CODE_CONT, 0).
 -define(OP_CODE_TEXT, 1).
@@ -70,6 +70,27 @@ from_binary(Data = <<_:8, Mask:1, PayloadLen:7, Trailing/bits>>, Acc) ->
 
 from_binary(<<>>, Acc) ->
   Acc.
+
+
+check_data_length(Data = <<_:8, Mask:1, PayloadLen:7, Trailing/bits>>) when byte_size(Data) >= 16 ->
+  PayloadBytes=  case PayloadLen of
+    126 ->
+      <<ExtPayloadLen:16, _/binary>> = Trailing,
+      2 + ExtPayloadLen;
+    127 ->
+      <<ExtPayloadLen:64, _/binary>> = Trailing,
+      8 + ExtPayloadLen;
+    _ ->
+      PayloadLen
+  end,
+  FrameSize = 2 + (PayloadBytes ) + Mask * 4,
+  rabbit_log:info("From binary: PayloadLen=~p, FrameSize=~p, PayloadBytes=~p, DataByteSize=~p, ~n Data=~p~n", [PayloadLen, FrameSize, PayloadBytes, byte_size(Data), Data]),
+  check_length(FrameSize, byte_size(Data));
+
+check_data_length(_) ->
+    more.
+check_length(Required, Actual) when Required >= Actual -> ok;
+check_length(Required, Actual) -> more.
 
 decode_frame(Data = <<Fin:1, Rsv1:1, Rsv2:1, Rsv3:1, Opcode:4, Mask:1, _/bits>> ) ->
   % TODO: ensure that Mask is not set
