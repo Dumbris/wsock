@@ -63,7 +63,7 @@ from_binary(Data = <<_:8, Mask:1, PayloadLen:7, Trailing/bits>>, Acc) ->
       PayloadLen
   end,
   FrameSize = 2 + (PayloadBytes ) + Mask * 4,
-  rabbit_log:info("From binary: PayloadLen=~p, FrameSize=~p, PayloadBytes=~p, DataByteSize=~p,~n Data=~p~n", [PayloadLen, FrameSize, PayloadBytes, byte_size(Data), Data]),
+    rabbit_log:info("From binary: PayloadLen=~p, FrameSize=~p, PayloadBytes=~p, DataByteSize=~p, DataBitSize=~p,~n Data=~p~n", [PayloadLen, FrameSize, PayloadBytes, byte_size(Data), bit_size(Data), Data]),
   %From binary: PayloadLen=126, FrameSize=47012, PayloadBytes=47010
   <<Frame:FrameSize/binary, Rest/binary>> = Data,
   from_binary(Rest, [decode_frame(Frame) | Acc]);
