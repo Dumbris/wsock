@@ -63,7 +63,7 @@ from_binary(Data = <<_:8, Mask:1, PayloadLen:7, Trailing/bits>>, Acc) ->
       PayloadLen
   end,
   FrameSize = 2 + (PayloadBytes ) + Mask * 4,
-  io:fwrite("From binary: PayloadLen=~s, FrameSize=~s, PayloadBytes=~s~n", [PayloadLen, FrameSize, PayloadBytes]),
+  rabbit_log:info("From binary: PayloadLen=~p, FrameSize=~p, PayloadBytes=~p~n", [PayloadLen, FrameSize, PayloadBytes]),
   <<Frame:FrameSize/binary, Rest/binary>> = Data,
   from_binary(Rest, [decode_frame(Frame) | Acc]);
 
