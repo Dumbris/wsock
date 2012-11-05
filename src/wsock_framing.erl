@@ -17,7 +17,7 @@
 -module(wsock_framing).
 -include("wsock.hrl").
 
--export([to_binary/1, from_binary/1, frame/1, frame/2]).
+-export([to_binary/1, from_binary/1, from_binary/2, frame/1, frame/2]).
 
 -define(OP_CODE_CONT, 0).
 -define(OP_CODE_TEXT, 1).
@@ -54,10 +54,10 @@ from_binary(Data) ->
 from_binary(Data = <<_:8, Mask:1, PayloadLen:7, Trailing/bits>>, Acc) ->
   PayloadBytes=  case PayloadLen of
     126 ->
-      <<ExtPayloadLen:16, _/binary>> = Trailing,
+      <<ExtPayloadLen:16/big-unsigned, _/binary>> = Trailing,
       2 + ExtPayloadLen;
     127 ->
-      <<ExtPayloadLen:64, _/binary>> = Trailing,
+      <<ExtPayloadLen:64/big-unsigned, _/binary>> = Trailing,
       8 + ExtPayloadLen;
     _ ->
       PayloadLen
