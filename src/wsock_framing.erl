@@ -89,7 +89,7 @@ check_data_length(Data = <<_:8, Mask:1, PayloadLen:7, Trailing/bits>>) when byte
 
 check_data_length(_) ->
     more.
-check_length(Required, Actual) when Required >= Actual -> ok;
+check_length(Required, Actual) when Required =< Actual -> ok;
 check_length(Required, Actual) -> more.
 
 decode_frame(Data = <<Fin:1, Rsv1:1, Rsv2:1, Rsv3:1, Opcode:4, Mask:1, _/bits>> ) ->
