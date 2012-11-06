@@ -71,6 +71,7 @@ from_binary(<<>>, Acc) ->
 
 
 check_data_length(Data = <<_:8, Mask:1, PayloadLen:7, Trailing/bits>>) when byte_size(Data) >= 16 ->
+  %calc frame size  
   PayloadBytes=  case PayloadLen of
     126 ->
       <<ExtPayloadLen:16, _/binary>> = Trailing,
@@ -82,12 +83,15 @@ check_data_length(Data = <<_:8, Mask:1, PayloadLen:7, Trailing/bits>>) when byte
       PayloadLen
   end,
   FrameSize = 2 + (PayloadBytes ) + Mask * 4,
-  check_length(FrameSize, byte_size(Data));
+  %Do check
+  check_length(FrameSize, Data);
 
 check_data_length(_) ->
     more.
-check_length(Required, Actual) when Required =< Actual -> ok;
-check_length(Required, Actual) -> more.
+check_length(FrameSize, Data) when FrameSize =< byte_size(Data) -> 
+    <<Frame:FrameSize/binary, Rest/binary>> = Data,
+    {ok, Frame, Rest};
+check_length(_, _) -> more.
 
 decode_frame(Data = <<Fin:1, Rsv1:1, Rsv2:1, Rsv3:1, Opcode:4, Mask:1, _/bits>> ) ->
   % TODO: ensure that Mask is not set
