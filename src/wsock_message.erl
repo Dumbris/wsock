@@ -208,12 +208,12 @@ build_payload_from_frames(close, [Frame]) ->
     <<Status:16, Reason/binary>> -> {Status, binary_to_list(Reason)}
   end;
 
-build_payload_from_frames(binary, Frames) ->
-  concatenate_payload_from_frames(Frames);
+build_payload_from_frames(_, Frames) ->
+  concatenate_payload_from_frames(Frames).
 
-build_payload_from_frames(text, Frames) ->
-  Payload = concatenate_payload_from_frames(Frames),
-  binary_to_list(Payload).
+%build_payload_from_frames(text, Frames) ->
+%  Payload = concatenate_payload_from_frames(Frames),
+%  binary_to_list(Payload).
 
 concatenate_payload_from_frames(Frames) ->
   concatenate_payload_from_frames(Frames, <<>>).
